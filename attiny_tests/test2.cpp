@@ -1,4 +1,4 @@
-#define F_CPU 1000000UL // Clock a 1MHz
+#define F_CPU 8000000UL // Clock a 1MHz
 
 #include <avr/io.h>
 #include <util/delay.h>
@@ -10,9 +10,9 @@
 void pulse(uint8_t pin)
 {
     PORTB |= (1 << pin);
-    _delay_us(1000);
+    _delay_us(1);
     PORTB &= ~(1 << pin);
-    _delay_us(1000);
+    _delay_us(1);
 }
 
 void shiftOut(uint8_t data)
@@ -60,7 +60,7 @@ void pixel_on(uint8_t row, uint8_t col)
     shiftOut(b1);
     shiftOut(b2);
     latch();
-    _delay_ms(100);
+    _delay_ms(1);
 }
 
 int main()
