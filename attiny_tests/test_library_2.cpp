@@ -56,7 +56,7 @@ void loop()
         for (uint8_t col = 0; col < 5; col++)
         {
             pixel_on(row, col);
-            delay(100);
+            // delay(1);
         }
     }
 }
