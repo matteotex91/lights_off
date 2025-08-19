@@ -5,9 +5,16 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
+#define QH PB0    // Data input from 74HC165
 #define SER PB1   // Pin 6
 #define SRCLK PB2 // Pin 7
 #define RCLK PB3  // Pin 2
+#define SHLD PB4  // Latch pin (SH/LD)
+
+uint8_t out_data_1 = 0;
+uint8_t out_data_2 = 0;
+
+uint8_t row_0_status = 0;
 
 void pulse(uint8_t pin)
 {
@@ -29,34 +36,35 @@ void shiftOut(uint8_t data)
     }
 }
 
-void pixel_on(uint8_t row, uint8_t col)
+void pixel_on(uint8_t row, uint8_t row_data)
 {
-    uint8_t b1 = 0x00;
-    uint8_t b2 = 0x1F;
+    out_data_1 = 0x00;
+    out_data_2 = 0x1F;
     if (row == 0)
-        b2 -= 0x01;
-    else if (row == 1)
-        b2 -= 0x02;
-    else if (row == 2)
-        b2 -= 0x04;
-    else if (row == 3)
-        b2 -= 0x08;
-    else
-        b2 -= 0x10;
-    if (col == 0)
-        b2 += 0x20;
-    else if (col == 1)
-        b2 += 0x40;
-    else if (col == 2)
-        b2 += 0x80;
-    else if (col == 3)
-        b1 += 2;
-    else
-        b1 += 1;
+        out_data_2 -= 0x01;
+    if (row == 1)
+        out_data_2 -= 0x02;
+    if (row == 2)
+        out_data_2 -= 0x04;
+    if (row == 3)
+        out_data_2 -= 0x08;
+    if (row == 4)
+        out_data_2 -= 0x10;
+    if (row_data & (1 << 0))
+        out_data_2 += 0x20;
+    if (row_data & (1 << 1))
+        out_data_2 += 0x40;
+    if (row_data & (1 << 2))
+        out_data_2 += 0x80;
+    if (row_data & (1 << 3))
+        out_data_1 += 2;
+    if (row_data & (1 << 4))
+        out_data_1 += 1;
+    out_data_1 += 0b1000;
 
     PORTB &= ~(1 << RCLK); // latch down
-    shiftOut(b1);
-    shiftOut(b2);
+    shiftOut(out_data_1);
+    shiftOut(out_data_2);
     PORTB |= (1 << RCLK); // latch up
 }
 
@@ -71,8 +79,8 @@ int main()
         {
             for (uint8_t col = 0; col < 5; col++)
             {
-                pixel_on(row, col);
-                _delay_ms(100);
+                pixel_on(row, 1 << col);
+                _delay_ms(10);
             }
         }
     }
