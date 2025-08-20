@@ -61,16 +61,16 @@ def read_74hc165():
 
 try:
     # Porta i due 74HC595 tutti HIGH (0xFFFF)
-    write_74hc595(0b1111111111111111)
+    write_74hc595(0b1000000000000000)
 
     while True:
         data = read_74hc165()
         # Usa i primi 5 bit (da MSB a LSB)
-        for i in range(5):
+        for i in range(8):
             state = (data >> (7 - i)) & 1
             print(f"Bottone {i + 1}: {'Premuto' if state == 0 else 'Rilasciato'}")
         print("------")
-        time.sleep(0.5)
+        time.sleep(0.1)
 
 except KeyboardInterrupt:
     print("Uscita dal programma")

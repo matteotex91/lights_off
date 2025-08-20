@@ -53,24 +53,22 @@ def read_74hc165():
         # Clock
         lgpio.gpio_write(h, PIN_CLK, 1)
         time.sleep(0.000001)
-        lgpio.gpio_write(h, PIN_CLK, 0)
-        time.sleep(0.000001)
 
     return value
 
 
 try:
     # Porta i due 74HC595 tutti HIGH (0xFFFF)
-    write_74hc595(0b1111111111111111)
+    write_74hc595(0xFFFF)
 
     while True:
         data = read_74hc165()
         # Usa i primi 5 bit (da MSB a LSB)
-        for i in range(5):
+        for i in range(3, 8):
             state = (data >> (7 - i)) & 1
-            print(f"Bottone {i + 1}: {'Premuto' if state == 0 else 'Rilasciato'}")
+            print(f"Bottone {i + 1}: {'Premuto' if state == 1 else 'Rilasciato'}")
         print("------")
-        time.sleep(0.5)
+        time.sleep(0.01)
 
 except KeyboardInterrupt:
     print("Uscita dal programma")
